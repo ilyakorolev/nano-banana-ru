@@ -2,10 +2,14 @@
 """
 Nano Banana Pro Image Generator (Zero Dependencies)
 
-Генерирует изображения через Gemini API на основе JSON спецификаций.
+Генерирует изображения через Gemini API.
 Работает без установки дополнительных пакетов — только stdlib Python 3.
 
 Использование:
+    # Текстовый промпт (рекомендуется)
+    python generate.py --prompt "hero shot продукта на мраморе, драматическое освещение"
+
+    # JSON спецификация (для полного контроля)
     python generate.py spec.json [--output image.png] [--model flash]
 
 API ключ загружается автоматически из (в порядке приоритета):
@@ -257,19 +261,38 @@ def save_image(image_bytes: bytes, output_path: Path) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Генерация изображений через Gemini API (без зависимостей)"
+        description="Генерация изображений через Gemini API (без зависимостей)",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Примеры:
+  # Текстовый промпт (рекомендуется)
+  python generate.py -p "hero shot продукта на мраморе, драматическое освещение"
+  python generate.py --prompt "дашборд SaaS, тёмная тема, графики"
+
+  # JSON спецификация (полный контроль)
+  python generate.py spec.json --model pro
+
+  # Быстрая генерация
+  python generate.py -p "иконка кошелька, outlined, 24px" -m flash
+        """
     )
     parser.add_argument(
         "spec_file",
         type=Path,
         nargs="?",
-        help="JSON файл со спецификацией"
+        help="JSON файл со спецификацией (опционально если используется --prompt)"
+    )
+    parser.add_argument(
+        "--prompt", "-p",
+        type=str,
+        default=None,
+        help="Текстовый промпт для генерации (вместо JSON файла)"
     )
     parser.add_argument(
         "--output", "-o",
         type=Path,
         default=None,
-        help="Путь для сохранения (по умолчанию: spec_file_timestamp.png)"
+        help="Путь для сохранения (по умолчанию: generated_timestamp.png)"
     )
     parser.add_argument(
         "--model", "-m",
@@ -278,9 +301,9 @@ def main():
         help=f"Модель (по умолчанию: {DEFAULT_MODEL})"
     )
     parser.add_argument(
-        "--prompt-only",
+        "--show-prompt",
         action="store_true",
-        help="Только показать промпт, не генерировать"
+        help="Показать финальный промпт перед генерацией"
     )
     parser.add_argument(
         "--stdin",
@@ -303,28 +326,39 @@ def main():
         print("Получить ключ: https://aistudio.google.com/apikey")
         sys.exit(1)
 
-    # Читаем спецификацию
-    if args.stdin:
+    # Определяем промпт
+    prompt = None
+
+    # Вариант 1: Текстовый промпт напрямую
+    if args.prompt:
+        prompt = args.prompt
+        print(f"Промпт: {prompt[:100]}{'...' if len(prompt) > 100 else ''}")
+
+    # Вариант 2: JSON из stdin
+    elif args.stdin:
         spec = json.load(sys.stdin)
+        prompt = json_to_prompt(spec)
+
+    # Вариант 3: JSON файл
     elif args.spec_file:
         if not args.spec_file.exists():
             print(f"Файл не найден: {args.spec_file}")
             sys.exit(1)
         with open(args.spec_file) as f:
             spec = json.load(f)
+        prompt = json_to_prompt(spec)
+
+    # Нет входных данных
     else:
         parser.print_help()
         sys.exit(1)
 
-    # Конвертируем в промпт
-    prompt = json_to_prompt(spec)
-
-    if args.prompt_only:
+    if args.show_prompt:
         print("=" * 60)
         print("ПРОМПТ:")
         print("=" * 60)
         print(prompt)
-        return
+        print("=" * 60)
 
     # Генерируем
     try:
@@ -333,7 +367,7 @@ def main():
         print(f"Ошибка: {e}")
         sys.exit(1)
 
-    # Сохраняем
+    # Определяем путь сохранения
     if args.output:
         output_path = args.output
     elif args.spec_file:
