@@ -1,0 +1,70 @@
+{
+  "presentation_slide": {
+    "meta": {
+      "spec_version": "1.0.0",
+      "title": "Revenue Growth Q4",
+      "presentation_name": "Investor Deck",
+      "slide_number": 5,
+      "variant": "McKinsey Classic"
+    },
+    "layout": {
+      "type": "mckinsey_exhibit",
+      "aspect_ratio": "16:9",
+      "dimensions": {"width": 1920, "height": 1080}
+    },
+    "content": {
+      "headline": {
+        "text": "Выручка выросла на 47% год-к-году благодаря расширению продуктовой линейки",
+        "position": "top_left",
+        "style": {
+          "font_size": 32,
+          "font_weight": "bold",
+          "color": "#1A1A1A",
+          "max_width": 1400
+        }
+      },
+      "main_content": {
+        "type": "three_column_metrics",
+        "columns": [
+          {
+            "metric": "+47%",
+            "label": "Рост выручки",
+            "description": "Q4 2024 vs Q4 2023"
+          },
+          {
+            "metric": "340",
+            "label": "Новых клиентов",
+            "description": "Enterprise сегмент"
+          },
+          {
+            "metric": "94%",
+            "label": "Retention",
+            "description": "Net Revenue Retention"
+          }
+        ],
+        "style": {
+          "metric_size": 56,
+          "metric_color": "#0066CC",
+          "metric_weight": "bold"
+        }
+      },
+      "source": {
+        "text": "Источник: внутренняя аналитика, Q4 2024",
+        "position": "bottom_left"
+      }
+    },
+    "brand": {
+      "logo": {"text": "ACME", "position": "bottom_right"},
+      "primary_color": "#0066CC",
+      "font_family": "Arial"
+    },
+    "background": {
+      "type": "solid",
+      "color": "#FFFFFF"
+    },
+    "style": {
+      "theme": "mckinsey_classic",
+      "mood": "professional, analytical, clean"
+    }
+  }
+}

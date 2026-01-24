@@ -1,0 +1,49 @@
+{
+  "marketing_image": {
+    "meta": {
+      "spec_version": "1.0.0",
+      "title": "Energy Drink Hero Shot",
+      "brand_name": "Bolt Energy"
+    },
+    "subject": {
+      "type": "product_can",
+      "name": "Bolt Energy Original",
+      "physical_properties": {
+        "volume_ml": 500,
+        "finish": "matte_metallic"
+      }
+    },
+    "props": {
+      "foreground": [
+        {"type": "ice_cube", "count": 8, "position": "around_base"},
+        {"type": "water_splash", "position": "behind_can", "intensity": "medium"}
+      ],
+      "midground": [
+        {"type": "condensation_drops", "on": "can_surface"}
+      ],
+      "background": []
+    },
+    "environment": {
+      "surface": {"material": "wet_black_glass", "reflection_strength": 0.8},
+      "background": {"color": "#0A0A0A", "effect": "subtle_gradient"},
+      "atmosphere": {"mood": "energetic, powerful, refreshing"}
+    },
+    "camera": {
+      "angle": "three_quarter_front",
+      "framing": "medium_close",
+      "focal_length_mm": 85,
+      "depth_of_field": "shallow"
+    },
+    "lighting": {
+      "key_light_direction": "three_quarter_left",
+      "key_light_intensity": "high",
+      "fill_light_intensity": "low",
+      "rim_light": true,
+      "color_temperature": "cool"
+    },
+    "brand": {
+      "primary_colors": ["#00FF00", "#000000"],
+      "accent_colors": ["#FFFFFF"]
+    }
+  }
+}

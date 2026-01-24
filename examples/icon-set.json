@@ -1,0 +1,42 @@
+{
+  "icon_set": {
+    "meta": {
+      "spec_version": "1.0.0",
+      "title": "Fintech App Icons",
+      "purpose": "Navigation and action icons for mobile banking app"
+    },
+    "specifications": {
+      "style": "outlined",
+      "grid_size": 24,
+      "stroke_width": 1.5,
+      "corner_radius": 2,
+      "optical_balance": true
+    },
+    "colors": {
+      "primary": "#1A1A1A",
+      "secondary": "#666666",
+      "accent": "#0066FF",
+      "mode": "monochrome"
+    },
+    "icons": [
+      {"name": "wallet", "description": "Bifold wallet, slightly open"},
+      {"name": "card", "description": "Credit card with chip visible"},
+      {"name": "transfer", "description": "Two arrows, one up one down"},
+      {"name": "history", "description": "Clock with circular arrow"},
+      {"name": "scan", "description": "QR code scanner frame"},
+      {"name": "security", "description": "Shield with checkmark"},
+      {"name": "support", "description": "Headset with microphone"},
+      {"name": "settings", "description": "Gear/cog wheel"}
+    ],
+    "export": {
+      "formats": ["svg", "png"],
+      "sizes": [24, 32, 48],
+      "naming_convention": "ic_{name}_{size}"
+    },
+    "constraints": {
+      "maintain_visual_weight": true,
+      "consistent_stroke_terminals": "round",
+      "minimum_gap": 2
+    }
+  }
+}

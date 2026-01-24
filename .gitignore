@@ -1,0 +1,30 @@
+# API Keys - NEVER commit!
+.env
+*.env
+!.env.example
+
+# Generated images
+*.png
+*.jpg
+*.jpeg
+*.webp
+output/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+env/
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

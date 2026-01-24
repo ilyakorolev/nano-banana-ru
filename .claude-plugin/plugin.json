@@ -1,0 +1,24 @@
+{
+  "name": "nano-banana-ru",
+  "description": "JSON Prompt Translator для Nano Banana Pro (Gemini Image) — конвертирует описания на русском языке в структурированные JSON спецификации для генерации изображений. Поддерживает 8 типов: маркетинг, UI, диаграммы, графики, соцсети, презентации, иконки, иллюстрации.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Ilya Korolev",
+    "url": "https://github.com/ilyakorolev"
+  },
+  "repository": "https://github.com/ilyakorolev/nano-banana-ru",
+  "license": "MIT",
+  "keywords": [
+    "nano-banana",
+    "gemini",
+    "image-generation",
+    "json-prompting",
+    "russian",
+    "presentations",
+    "marketing",
+    "ui-mockups"
+  ],
+  "engines": {
+    "claude-code": ">=1.0.0"
+  }
+}

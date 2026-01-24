@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "nano-banana-ru",
+  "description": "JSON Prompt Translator для Nano Banana Pro — генерация изображений через Gemini API",
+  "owner": {
+    "name": "Ilya Korolev",
+    "url": "https://github.com/ilyakorolev"
+  },
+  "plugins": [
+    {
+      "name": "nano-banana-ru",
+      "description": "Конвертирует описания на русском в JSON спецификации для Nano Banana Pro (Gemini 3 Pro Image). 8 типов схем: маркетинг, UI, диаграммы, данные, соцсети, презентации, иконки, иллюстрации.",
+      "author": {
+        "name": "Ilya Korolev"
+      },
+      "source": ".",
+      "homepage": "https://github.com/ilyakorolev/nano-banana-ru"
+    }
+  ]
+}
