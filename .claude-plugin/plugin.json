@@ -1,7 +1,7 @@
 {
   "name": "nano-banana-ru",
-  "description": "Генератор изображений через Gemini API — создаёт маркетинговые фото, UI мокапы, слайды презентаций, иконки и иллюстрации по текстовому описанию на русском языке.",
-  "version": "1.0.0",
+  "description": "Image generator via Gemini API — create marketing shots, UI mockups, presentation slides, icons, and illustrations from text prompts.",
+  "version": "2.0.0",
   "author": {
     "name": "Ilya Korolev",
     "url": "https://github.com/ilyakorolev"
@@ -12,8 +12,6 @@
     "nano-banana",
     "gemini",
     "image-generation",
-    "json-prompting",
-    "russian",
     "presentations",
     "marketing",
     "ui-mockups"

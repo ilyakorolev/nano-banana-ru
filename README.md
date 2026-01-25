@@ -1,141 +1,141 @@
-# Nano Banana Pro (Russian Edition)
+# Nano Banana Pro
 
 <p align="center">
   <img src="https://img.shields.io/badge/Claude%20Code-Plugin-blue" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Gemini-3%20Pro%20Image-green" alt="Gemini 3 Pro">
-  <img src="https://img.shields.io/badge/Language-Russian-red" alt="Russian">
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License">
 </p>
 
-Генерация изображений через Gemini API одной командой.
+Generate images via Gemini API with a single command.
 
 ## Quick Start
 
 ```bash
-# 1. Клонировать
+# 1. Clone
 git clone https://github.com/ilyakorolev/nano-banana-ru ~/.claude/skills/nano-banana-ru
 
-# 2. Добавить API ключ (https://aistudio.google.com/apikey)
+# 2. Add API key (https://aistudio.google.com/apikey)
 echo "GEMINI_API_KEY=your_key" > ~/.claude/skills/nano-banana-ru/skills/.env
 
-# 3. Использовать
-/nano-banana-ru hero shot продукта на мраморе, драматическое освещение
+# 3. Use
+/nano-banana-ru hero shot of product on marble, dramatic lighting
 ```
 
-## Использование
+## Usage
 
-### Через skill (рекомендуется)
+### Via skill (recommended)
 ```bash
-/nano-banana-ru дашборд SaaS, тёмная тема, графики и метрики
+/nano-banana-ru SaaS dashboard, dark theme, charts and metrics
 ```
 
-### Через скрипт напрямую
+### Via script directly
 ```bash
-python ~/.claude/skills/nano-banana-ru/skills/scripts/generate.py \
-  --prompt "слайд презентации, McKinsey style, метрики роста" \
+python3 ~/.claude/skills/nano-banana-ru/skills/scripts/generate.py \
+  --prompt "presentation slide, McKinsey style, growth metrics" \
   --output slide.png
 ```
 
-### Опции
+### Options
 ```bash
--p, --prompt    Текстовый промпт
--o, --output    Путь для сохранения
--m, --model     flash (быстро) | pro (качество) | imagen (фото)
+-p, --prompt    Text prompt
+-o, --output    Output path
+-m, --model     flash (fast) | pro (quality) | imagen (photo)
 ```
 
-## Примеры промптов
+## Prompt Examples
 
-**Продукт:**
+**Product:**
 ```
-hero shot банки энергетика, лёд и брызги, драматическое освещение, тёмный фон
-```
-
-**UI мокап:**
-```
-dashboard аналитики, тёмная тема, 4 карточки метрик, line chart, Inter font
+hero shot of energy drink can, ice and splashes, dramatic lighting, dark background
 ```
 
-**Слайд (McKinsey):**
+**UI mockup:**
 ```
-presentation slide, белый фон, 16:9, заголовок "Рост +47%", три метрики, bar chart
-```
-
-**Иконки:**
-```
-icon set финтех: wallet, card, transfer, history, outlined, 24px, #374151
+analytics dashboard, dark theme, 4 metric cards, line chart, Inter font
 ```
 
-Больше примеров: [examples/prompts.md](examples/prompts.md)
+**Slide (McKinsey):**
+```
+presentation slide, white background, 16:9, headline "Growth +47%", three metrics, bar chart
+```
 
-## Установка
+**Icons:**
+```
+fintech icon set: wallet, card, transfer, history, outlined, 24px, #374151
+```
 
-### Вариант 1: Как skill
+More examples: [examples/prompts.md](examples/prompts.md)
+
+## Installation
+
+### Option 1: As skill
 ```bash
 git clone https://github.com/ilyakorolev/nano-banana-ru ~/.claude/skills/nano-banana-ru
 ```
 
-### Вариант 2: Как plugin
+### Option 2: As plugin
 ```bash
 git clone https://github.com/ilyakorolev/nano-banana-ru ~/.claude/plugins/nano-banana-ru
 ```
 
-### Вариант 3: С флагом
+### Option 3: With flag
 ```bash
 claude --plugin-dir ./nano-banana-ru
 ```
 
-## Настройка API
+## API Setup
 
-1. Получить ключ: [Google AI Studio](https://aistudio.google.com/apikey)
-2. Создать `.env`:
+1. Get key: [Google AI Studio](https://aistudio.google.com/apikey)
+2. Create `.env`:
 ```bash
 echo "GEMINI_API_KEY=AIzaSy..." > ~/.claude/skills/nano-banana-ru/skills/.env
 ```
 
-Или через переменную окружения:
+Or via environment variable:
 ```bash
 export GEMINI_API_KEY=AIzaSy...
 ```
 
-## Модели
+## Models
 
-| Модель | Для чего |
-|--------|----------|
-| `flash` | Быстрые итерации, черновики |
-| `pro` | Финальное качество (по умолчанию) |
-| `imagen` | Фотореализм, художественные стили |
+| Model | Use case |
+|-------|----------|
+| `flash` | Quick iterations, drafts |
+| `pro` | Final quality (default) |
+| `imagen` | Photorealism, artistic styles |
 
-## Структура
+## Structure
 
 ```
 nano-banana-ru/
 ├── skills/
-│   ├── SKILL.md              # Инструкции для Claude
-│   ├── .env                  # API ключ (создать)
+│   ├── SKILL.md              # Claude instructions
+│   ├── .env                  # API key (create)
 │   └── scripts/
-│       └── generate.py       # Zero-dependency генератор
+│       └── generate.py       # Zero-dependency generator
 ├── examples/
-│   ├── prompts.md            # Примеры промптов
-│   └── json/                 # JSON спецификации (Pro mode)
+│   ├── prompts.md            # Prompt examples
+│   └── json/                 # JSON specs (Pro mode)
 └── README.md
 ```
 
 ## Pro Mode (JSON)
 
-Для полного контроля над генерацией (брендинг, серийная генерация):
+For full control over generation (branding, batch generation):
 
 ```bash
-python generate.py examples/json/marketing.json --output result.png
+python3 generate.py examples/json/marketing.json --output result.png
 ```
 
 ## Zero Dependencies
 
-Скрипт работает на чистом Python 3 — только стандартная библиотека. Никаких `pip install`.
+Script runs on pure Python 3 — stdlib only. No `pip install` needed.
 
 ## Credits
 
-Вдохновлён:
-- [kkoppenhaver/cc-nano-banana](https://github.com/kkoppenhaver/cc-nano-banana) — Gemini CLI интеграция
-- [jawhnycooke/claude-code-nano-banana](https://github.com/jawhnycooke/claude-code-nano-banana) — оригинальный JSON translator
+Inspired by:
+- [kkoppenhaver/cc-nano-banana](https://github.com/kkoppenhaver/cc-nano-banana) — Gemini CLI integration
+- [jawhnycooke/claude-code-nano-banana](https://github.com/jawhnycooke/claude-code-nano-banana) — Original JSON translator
 
 API: [Gemini Image Generation](https://ai.google.dev/gemini-api/docs/image-generation)
 

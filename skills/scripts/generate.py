@@ -2,27 +2,27 @@
 """
 Nano Banana Pro Image Generator (Zero Dependencies)
 
-Генерирует изображения через Gemini API.
-Работает без установки дополнительных пакетов — только stdlib Python 3.
+Generate images via Gemini API.
+Works without installing additional packages — Python 3 stdlib only.
 
-Использование:
-    # Текстовый промпт (рекомендуется)
-    python generate.py --prompt "hero shot продукта на мраморе, драматическое освещение"
+Usage:
+    # Text prompt (recommended)
+    python generate.py --prompt "hero shot of product on marble, dramatic lighting"
 
-    # JSON спецификация (для полного контроля)
+    # JSON specification (for full control)
     python generate.py spec.json [--output image.png] [--model flash]
 
-API ключ загружается автоматически из (в порядке приоритета):
-    1. Переменная окружения GEMINI_API_KEY
-    2. .env в текущей директории
-    3. .env в директории скрипта
+API key is loaded automatically from (in order of priority):
+    1. GEMINI_API_KEY environment variable
+    2. .env in current directory
+    3. .env in script directory
     4. ~/.env
     5. ~/.claude/.env
 
-Формат .env файла:
+.env file format:
     GEMINI_API_KEY=AIzaSy...
 
-Получить ключ: https://aistudio.google.com/apikey
+Get key: https://aistudio.google.com/apikey
 """
 
 import argparse
@@ -37,7 +37,7 @@ from pathlib import Path
 
 
 def load_env_file(env_path: Path) -> dict:
-    """Парсит .env файл и возвращает dict переменных."""
+    """Parse .env file and return dict of variables."""
     env_vars = {}
     if not env_path.exists():
         return env_vars
@@ -46,15 +46,15 @@ def load_env_file(env_path: Path) -> dict:
         with open(env_path) as f:
             for line in f:
                 line = line.strip()
-                # Пропускаем пустые строки и комментарии
+                # Skip empty lines and comments
                 if not line or line.startswith('#'):
                     continue
-                # Парсим KEY=VALUE
+                # Parse KEY=VALUE
                 if '=' in line:
                     key, _, value = line.partition('=')
                     key = key.strip()
                     value = value.strip()
-                    # Убираем кавычки если есть
+                    # Remove quotes if present
                     if (value.startswith('"') and value.endswith('"')) or \
                        (value.startswith("'") and value.endswith("'")):
                         value = value[1:-1]
@@ -66,26 +66,26 @@ def load_env_file(env_path: Path) -> dict:
 
 
 def get_api_key() -> str | None:
-    """Получает API ключ из переменных окружения или .env файлов."""
+    """Get API key from environment variables or .env files."""
 
-    # 1. Проверяем переменную окружения
+    # 1. Check environment variable
     api_key = os.environ.get("GEMINI_API_KEY")
     if api_key:
         return api_key
 
-    # 2. Ищем в .env файлах (в порядке приоритета)
+    # 2. Search in .env files (in order of priority)
     env_locations = [
-        Path.cwd() / ".env",                          # Текущая директория
-        Path(__file__).parent / ".env",               # Директория скрипта
+        Path.cwd() / ".env",                          # Current directory
+        Path(__file__).parent / ".env",               # Script directory
         Path(__file__).parent.parent / ".env",        # skills/
-        Path.home() / ".env",                         # Домашняя
+        Path.home() / ".env",                         # Home
         Path.home() / ".claude" / ".env",             # ~/.claude/
     ]
 
     for env_path in env_locations:
         env_vars = load_env_file(env_path)
         if "GEMINI_API_KEY" in env_vars:
-            # Также устанавливаем в окружение для консистентности
+            # Also set in environment for consistency
             os.environ["GEMINI_API_KEY"] = env_vars["GEMINI_API_KEY"]
             return env_vars["GEMINI_API_KEY"]
 
@@ -95,10 +95,10 @@ def get_api_key() -> str | None:
 # API endpoint
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 
-# Доступные модели
+# Available models
 MODELS = {
-    "flash": "gemini-2.5-flash-preview-05-20",     # Nano Banana - быстрый
-    "pro": "gemini-3-pro-image-preview",           # Nano Banana Pro - качественный
+    "flash": "gemini-2.5-flash-preview-05-20",     # Nano Banana - fast
+    "pro": "gemini-3-pro-image-preview",           # Nano Banana Pro - quality
     "imagen": "imagen-3.0-generate-002",           # Imagen 3
 }
 
@@ -106,7 +106,7 @@ DEFAULT_MODEL = "pro"
 
 
 def json_to_prompt(spec: dict) -> str:
-    """Конвертирует JSON спецификацию в текстовый промпт для Gemini."""
+    """Convert JSON specification to text prompt for Gemini."""
 
     schema_type = list(spec.keys())[0]
     data = spec[schema_type]
@@ -116,7 +116,7 @@ def json_to_prompt(spec: dict) -> str:
         f"Image type: {schema_type.replace('_', ' ').title()}",
     ]
 
-    # Meta информация
+    # Meta information
     if "meta" in data:
         meta = data["meta"]
         if "title" in meta:
@@ -124,7 +124,7 @@ def json_to_prompt(spec: dict) -> str:
         if "description" in meta:
             prompt_parts.append(f"Description: {meta['description']}")
 
-    # Добавляем ключевые элементы в читаемом виде
+    # Add key elements in readable form
     if schema_type == "marketing_image":
         if "subject" in data:
             prompt_parts.append(f"Subject: {data['subject'].get('name', '')} - {data['subject'].get('description', '')}")
@@ -165,7 +165,7 @@ def json_to_prompt(spec: dict) -> str:
             prompt_parts.append(f"Scene: {data['scene'].get('description', '')}")
             prompt_parts.append(f"Mood: {data['scene'].get('mood', '')}")
 
-    # Добавляем полную спецификацию
+    # Add full specification
     prompt_parts.append("\n--- FULL JSON SPECIFICATION (follow exactly) ---")
     prompt_parts.append(json.dumps(spec, indent=2, ensure_ascii=False))
     prompt_parts.append("--- END SPECIFICATION ---")
@@ -176,12 +176,12 @@ def json_to_prompt(spec: dict) -> str:
 
 
 def generate_image(prompt: str, api_key: str, model_name: str = DEFAULT_MODEL) -> bytes:
-    """Генерирует изображение через Gemini API."""
+    """Generate image via Gemini API."""
 
     model = MODELS.get(model_name, model_name)
     url = f"{GEMINI_API_URL}/{model}:generateContent?key={api_key}"
 
-    # Request body для image generation
+    # Request body for image generation
     payload = {
         "contents": [{
             "parts": [{"text": prompt}]
@@ -196,8 +196,8 @@ def generate_image(prompt: str, api_key: str, model_name: str = DEFAULT_MODEL) -
         "Content-Type": "application/json",
     }
 
-    print(f"Модель: {model}")
-    print("Генерация изображения...")
+    print(f"Model: {model}")
+    print("Generating image...")
 
     req = urllib.request.Request(url, data=data, headers=headers, method="POST")
 
@@ -215,7 +215,7 @@ def generate_image(prompt: str, api_key: str, model_name: str = DEFAULT_MODEL) -
     except urllib.error.URLError as e:
         raise RuntimeError(f"Network Error: {e.reason}")
 
-    # Извлекаем изображение из ответа
+    # Extract image from response
     if "candidates" not in result:
         raise RuntimeError(f"Unexpected response: {json.dumps(result, indent=2)}")
 
@@ -227,20 +227,20 @@ def generate_image(prompt: str, api_key: str, model_name: str = DEFAULT_MODEL) -
                 inline = part["inlineData"]
                 if inline.get("mimeType", "").startswith("image/"):
                     return base64.b64decode(inline["data"])
-            # Gemini 2.0 может вернуть text с описанием
+            # Gemini 2.0 may return text with description
             if "text" in part:
                 print(f"Model response: {part['text'][:200]}...")
 
-    # Если изображение не найдено, выводим полный ответ для отладки
+    # If image not found, output full response for debugging
     print("Full response:")
     print(json.dumps(result, indent=2, ensure_ascii=False)[:2000])
     raise RuntimeError("No image found in response. Model may not support image generation.")
 
 
 def save_image(image_bytes: bytes, output_path: Path) -> None:
-    """Сохраняет изображение."""
+    """Save image to file."""
 
-    # Определяем формат по magic bytes
+    # Detect format by magic bytes
     if image_bytes[:8] == b'\x89PNG\r\n\x1a\n':
         ext = ".png"
     elif image_bytes[:2] == b'\xff\xd8':
@@ -250,124 +250,124 @@ def save_image(image_bytes: bytes, output_path: Path) -> None:
     else:
         ext = ".png"  # default
 
-    # Добавляем расширение если нет
+    # Add extension if missing
     if not output_path.suffix:
         output_path = output_path.with_suffix(ext)
 
     output_path.write_bytes(image_bytes)
-    print(f"Сохранено: {output_path}")
-    print(f"Размер: {len(image_bytes) / 1024:.1f} KB")
+    print(f"Saved: {output_path}")
+    print(f"Size: {len(image_bytes) / 1024:.1f} KB")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Генерация изображений через Gemini API (без зависимостей)",
+        description="Generate images via Gemini API (zero dependencies)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Примеры:
-  # Текстовый промпт (рекомендуется)
-  python generate.py -p "hero shot продукта на мраморе, драматическое освещение"
-  python generate.py --prompt "дашборд SaaS, тёмная тема, графики"
+Examples:
+  # Text prompt (recommended)
+  python generate.py -p "hero shot of product on marble, dramatic lighting"
+  python generate.py --prompt "SaaS dashboard, dark theme, charts"
 
-  # JSON спецификация (полный контроль)
+  # JSON specification (full control)
   python generate.py spec.json --model pro
 
-  # Быстрая генерация
-  python generate.py -p "иконка кошелька, outlined, 24px" -m flash
+  # Quick generation
+  python generate.py -p "wallet icon, outlined, 24px" -m flash
         """
     )
     parser.add_argument(
         "spec_file",
         type=Path,
         nargs="?",
-        help="JSON файл со спецификацией (опционально если используется --prompt)"
+        help="JSON spec file (optional if using --prompt)"
     )
     parser.add_argument(
         "--prompt", "-p",
         type=str,
         default=None,
-        help="Текстовый промпт для генерации (вместо JSON файла)"
+        help="Text prompt for generation (instead of JSON file)"
     )
     parser.add_argument(
         "--output", "-o",
         type=Path,
         default=None,
-        help="Путь для сохранения (по умолчанию: generated_timestamp.png)"
+        help="Output path (default: generated_timestamp.png)"
     )
     parser.add_argument(
         "--model", "-m",
         choices=list(MODELS.keys()),
         default=DEFAULT_MODEL,
-        help=f"Модель (по умолчанию: {DEFAULT_MODEL})"
+        help=f"Model (default: {DEFAULT_MODEL})"
     )
     parser.add_argument(
         "--show-prompt",
         action="store_true",
-        help="Показать финальный промпт перед генерацией"
+        help="Show final prompt before generation"
     )
     parser.add_argument(
         "--stdin",
         action="store_true",
-        help="Читать JSON из stdin"
+        help="Read JSON from stdin"
     )
 
     args = parser.parse_args()
 
-    # Получаем API ключ (из env или .env файлов)
+    # Get API key (from env or .env files)
     api_key = get_api_key()
     if not api_key:
-        print("GEMINI_API_KEY не найден!")
+        print("GEMINI_API_KEY not found!")
         print()
-        print("Варианты настройки:")
+        print("Setup options:")
         print("  1. export GEMINI_API_KEY=your_key")
-        print("  2. Создать .env файл с GEMINI_API_KEY=your_key")
-        print("     Поддерживаемые пути: ./.env, ~/.env, ~/.claude/.env")
+        print("  2. Create .env file with GEMINI_API_KEY=your_key")
+        print("     Supported paths: ./.env, ~/.env, ~/.claude/.env")
         print()
-        print("Получить ключ: https://aistudio.google.com/apikey")
+        print("Get key: https://aistudio.google.com/apikey")
         sys.exit(1)
 
-    # Определяем промпт
+    # Determine prompt
     prompt = None
 
-    # Вариант 1: Текстовый промпт напрямую
+    # Option 1: Text prompt directly
     if args.prompt:
         prompt = args.prompt
-        print(f"Промпт: {prompt[:100]}{'...' if len(prompt) > 100 else ''}")
+        print(f"Prompt: {prompt[:100]}{'...' if len(prompt) > 100 else ''}")
 
-    # Вариант 2: JSON из stdin
+    # Option 2: JSON from stdin
     elif args.stdin:
         spec = json.load(sys.stdin)
         prompt = json_to_prompt(spec)
 
-    # Вариант 3: JSON файл
+    # Option 3: JSON file
     elif args.spec_file:
         if not args.spec_file.exists():
-            print(f"Файл не найден: {args.spec_file}")
+            print(f"File not found: {args.spec_file}")
             sys.exit(1)
         with open(args.spec_file) as f:
             spec = json.load(f)
         prompt = json_to_prompt(spec)
 
-    # Нет входных данных
+    # No input data
     else:
         parser.print_help()
         sys.exit(1)
 
     if args.show_prompt:
         print("=" * 60)
-        print("ПРОМПТ:")
+        print("PROMPT:")
         print("=" * 60)
         print(prompt)
         print("=" * 60)
 
-    # Генерируем
+    # Generate
     try:
         image_bytes = generate_image(prompt, api_key, args.model)
     except Exception as e:
-        print(f"Ошибка: {e}")
+        print(f"Error: {e}")
         sys.exit(1)
 
-    # Определяем путь сохранения
+    # Determine output path
     if args.output:
         output_path = args.output
     elif args.spec_file:

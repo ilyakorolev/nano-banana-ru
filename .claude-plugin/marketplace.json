@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "nano-banana-ru",
-  "description": "JSON Prompt Translator для Nano Banana Pro — генерация изображений через Gemini API",
+  "description": "Image generator via Gemini API — marketing shots, UI mockups, slides, icons, illustrations",
   "owner": {
     "name": "Ilya Korolev",
     "url": "https://github.com/ilyakorolev"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "nano-banana-ru",
-      "description": "Генератор изображений через Gemini API. Маркетинг, UI мокапы, слайды, иконки, иллюстрации — по текстовому описанию на русском.",
+      "description": "Image generator via Gemini API. Create marketing shots, UI mockups, presentation slides, icons, and illustrations from natural language prompts.",
       "author": {
         "name": "Ilya Korolev"
       },
