@@ -15,8 +15,5 @@
     "presentations",
     "marketing",
     "ui-mockups"
-  ],
-  "engines": {
-    "claude-code": ">=1.0.0"
-  }
+  ]
 }
