@@ -1,12 +1,12 @@
 ---
 name: nano-banana-ru
-description: Generate images via Gemini API. Marketing shots, UI mockups, slides, icons, illustrations — from text prompts.
-argument-hint: "[image description]"
+description: Generate images via Gemini API. Marketing shots, UI mockups, slides, icons, illustrations — from text prompts or reference images.
+argument-hint: "[image description or path to reference image]"
 ---
 
 # Nano Banana Pro — Image Generator
 
-Generate images via Gemini 3 Pro Image API from text descriptions.
+Generate images via Gemini 3 Pro Image API from text descriptions or reference images.
 
 ## Input
 $ARGUMENTS
@@ -19,13 +19,68 @@ If no description provided, ask: "What do you want to create? (product shot, UI,
 
 1. Get description from user
 2. Enhance the prompt (add details)
-3. Run generator via Bash
+3. If user provides a reference image path, use `--image` flag
+4. Run generator via Bash
 
 ```bash
-python3 ~/.claude/skills/nano-banana-ru/skills/scripts/generate.py \
+# Text prompt only
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py \
   --prompt "your prompt" \
   --output ./output/image.png
+
+# With reference image (photo → stylized)
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py \
+  --prompt "transform instruction" \
+  --image /path/to/photo.jpg \
+  --output ./output/result.png
 ```
+
+---
+
+## Image Reference Mode
+
+Use `--image` (`-i`) to send a photo as reference. The model will transform/stylize it based on your prompt.
+
+### When to use `--image`
+
+- **Photo → pixel art**: convert a portrait to retro game sprite
+- **Photo → cartoon/avatar**: stylize a selfie
+- **Photo → illustration**: turn a product photo into marketing illustration
+- **Style transfer**: apply a specific art style to any image
+- **Background removal + stylization**: isolate subject and transform
+
+### Examples
+
+**Pixel art portrait from photo:**
+```bash
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py \
+  -i selfie.jpg \
+  -p "convert to 32-bit pixel art portrait, black background, neon glow, retro arcade style" \
+  -o pixel_avatar.png
+```
+
+**Cartoon avatar:**
+```bash
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py \
+  -i photo.jpg \
+  -p "transform into Pixar-style 3D cartoon character, keep likeness, white background" \
+  -o cartoon.png
+```
+
+**Product illustration from photo:**
+```bash
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py \
+  -i product_photo.jpg \
+  -p "turn into clean vector illustration, flat design, brand colors #3B82F6 and #1E3A8A" \
+  -o product_illustration.png
+```
+
+### Tips for image reference prompts
+
+- **Be specific about the transformation**: "convert to pixel art" not just "pixel art"
+- **Mention what to keep**: "preserve likeness", "keep the pose", "same composition"
+- **Mention what to change**: "remove background", "add neon glow", "change style to watercolor"
+- **Supported formats**: JPG, JPEG, PNG, GIF, WEBP, BMP
 
 ---
 
@@ -124,13 +179,13 @@ blue (#3B82F6) nodes, gray (#6B7280) labels
 
 ### Quick draft
 ```bash
-python3 ~/.claude/skills/nano-banana-ru/skills/scripts/generate.py \
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py \
   -p "product hero shot" -m flash -o ./draft.png
 ```
 
 ### Final version
 ```bash
-python3 ~/.claude/skills/nano-banana-ru/skills/scripts/generate.py \
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py \
   -p "detailed prompt with all specifics" -o ./final.png
 ```
 
@@ -141,7 +196,7 @@ python3 ~/.claude/skills/nano-banana-ru/skills/scripts/generate.py \
 For **full control** (branding, batch generation) use JSON:
 
 ```bash
-python3 ~/.claude/skills/nano-banana-ru/skills/scripts/generate.py spec.json
+python3 ~/.claude/plugins/cache/mzhn-marketplace/nano-banana-ru/2.0.0/skills/scripts/generate.py spec.json
 ```
 
 JSON examples in `examples/json/` directory.
@@ -151,8 +206,28 @@ JSON examples in `examples/json/` directory.
 ## Troubleshooting
 
 **API key not found:**
+
+The script searches for `GEMINI_API_KEY` in this order:
+1. Environment variable `GEMINI_API_KEY`
+2. `.env` file in current directory
+3. `.env` file in script directory
+4. `~/.env`
+5. `~/.claude/.env`
+6. macOS Keychain (service: `gemini-api-key`)
+
+**Option A — macOS Keychain (recommended):**
 ```bash
-echo "GEMINI_API_KEY=your_key" > ~/.claude/skills/nano-banana-ru/skills/.env
+security add-generic-password -s "gemini-api-key" -a "$USER" -w "YOUR_API_KEY"
+```
+
+**Option B — Environment variable:**
+```bash
+export GEMINI_API_KEY="YOUR_API_KEY"
+```
+
+**Option C — .env file:**
+```bash
+echo "GEMINI_API_KEY=YOUR_API_KEY" >> ~/.claude/.env
 ```
 
 **Model doesn't generate images:**

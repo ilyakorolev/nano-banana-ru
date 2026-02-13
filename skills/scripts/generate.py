@@ -9,6 +9,9 @@ Usage:
     # Text prompt (recommended)
     python generate.py --prompt "hero shot of product on marble, dramatic lighting"
 
+    # Image reference + prompt (transform/stylize a photo)
+    python generate.py --image photo.jpg --prompt "convert to pixel art, 32-bit style"
+
     # JSON specification (for full control)
     python generate.py spec.json [--output image.png] [--model flash]
 
@@ -65,8 +68,31 @@ def load_env_file(env_path: Path) -> dict:
     return env_vars
 
 
+def get_api_key_from_keychain() -> str | None:
+    """Get API key from macOS Keychain."""
+    import subprocess
+    import platform
+
+    if platform.system() != "Darwin":
+        return None
+
+    try:
+        result = subprocess.run(
+            ["security", "find-generic-password", "-a", "nano-banana", "-s", "gemini-api-key", "-w"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+
+    return None
+
+
 def get_api_key() -> str | None:
-    """Get API key from environment variables or .env files."""
+    """Get API key from environment variables, .env files, or macOS Keychain."""
 
     # 1. Check environment variable
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -88,6 +114,12 @@ def get_api_key() -> str | None:
             # Also set in environment for consistency
             os.environ["GEMINI_API_KEY"] = env_vars["GEMINI_API_KEY"]
             return env_vars["GEMINI_API_KEY"]
+
+    # 3. Try macOS Keychain
+    api_key = get_api_key_from_keychain()
+    if api_key:
+        os.environ["GEMINI_API_KEY"] = api_key
+        return api_key
 
     return None
 
@@ -175,17 +207,50 @@ def json_to_prompt(spec: dict) -> str:
     return "\n".join(prompt_parts)
 
 
-def generate_image(prompt: str, api_key: str, model_name: str = DEFAULT_MODEL) -> bytes:
-    """Generate image via Gemini API."""
+def _detect_mime_type(file_path: str) -> str:
+    """Detect MIME type from file extension."""
+    ext = Path(file_path).suffix.lower()
+    mime_map = {
+        ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".gif": "image/gif",
+        ".webp": "image/webp",
+        ".bmp": "image/bmp",
+    }
+    return mime_map.get(ext, "image/jpeg")
+
+
+def generate_image(prompt: str, api_key: str, model_name: str = DEFAULT_MODEL,
+                   image_path: str | None = None) -> bytes:
+    """Generate image via Gemini API. Optionally include a reference image."""
 
     model = MODELS.get(model_name, model_name)
     url = f"{GEMINI_API_URL}/{model}:generateContent?key={api_key}"
 
+    # Build parts list
+    parts = []
+
+    # Add reference image if provided
+    if image_path:
+        img_file = Path(image_path)
+        if not img_file.exists():
+            raise RuntimeError(f"Image not found: {image_path}")
+        img_b64 = base64.b64encode(img_file.read_bytes()).decode("utf-8")
+        mime_type = _detect_mime_type(image_path)
+        parts.append({
+            "inlineData": {
+                "mimeType": mime_type,
+                "data": img_b64
+            }
+        })
+        print(f"Reference image: {image_path} ({mime_type})")
+
+    # Add text prompt
+    parts.append({"text": prompt})
+
     # Request body for image generation
     payload = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }],
+        "contents": [{"parts": parts}],
         "generationConfig": {
             "responseModalities": ["TEXT", "IMAGE"],
         }
@@ -269,6 +334,10 @@ Examples:
   python generate.py -p "hero shot of product on marble, dramatic lighting"
   python generate.py --prompt "SaaS dashboard, dark theme, charts"
 
+  # Image reference + prompt (transform/stylize a photo)
+  python generate.py -p "convert to 32-bit pixel art" --image photo.jpg
+  python generate.py -p "make a cartoon avatar" -i selfie.png -o avatar.png
+
   # JSON specification (full control)
   python generate.py spec.json --model pro
 
@@ -299,6 +368,12 @@ Examples:
         choices=list(MODELS.keys()),
         default=DEFAULT_MODEL,
         help=f"Model (default: {DEFAULT_MODEL})"
+    )
+    parser.add_argument(
+        "--image", "-i",
+        type=Path,
+        default=None,
+        help="Reference image path (photo to transform/stylize)"
     )
     parser.add_argument(
         "--show-prompt",
@@ -360,9 +435,17 @@ Examples:
         print(prompt)
         print("=" * 60)
 
+    # Validate --image flag
+    if args.image and not args.image.exists():
+        print(f"Image not found: {args.image}")
+        sys.exit(1)
+
     # Generate
     try:
-        image_bytes = generate_image(prompt, api_key, args.model)
+        image_bytes = generate_image(
+            prompt, api_key, args.model,
+            image_path=str(args.image) if args.image else None
+        )
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
